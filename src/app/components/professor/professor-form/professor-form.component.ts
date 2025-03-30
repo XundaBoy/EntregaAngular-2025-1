@@ -3,6 +3,8 @@ import { MdbFormsModule } from 'mdb-angular-ui-kit/forms';
 import { Professor } from '../../../models/professor';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
+import Swal from 'sweetalert2';
+import { ProfessorService } from '../../../service/professor.service';
 
 @Component({
   selector: 'app-professor-form',
@@ -16,27 +18,60 @@ export class professorFormComponent {
   professor: Professor =  new Professor();
 
   rotaAtivida = inject(ActivatedRoute);
+  professorService = inject(ProfessorService);
+
+
   constructor(){
 
+  
     let id = this.rotaAtivida.snapshot.params["id"];
-    if(id){
-      let professor1 = new Professor();
-      professor1.id = 1000;
-      professor1.nome="NATHALIAS";
-      professor1.cpf="321";
-      professor1.email="email@gmail.com";
-      professor1.especialidade="BACKEND";
-      this.professor = professor1;
+    if(id > 0){
+     this.findById(id);
 
     }
   }
 
-  save(){
+  findById(id : number){
+  
+      this.professorService.findById(id).subscribe({
+        next: retorno =>{      
+          this.professor = retorno;
+        },
+        error: erro =>{
+          Swal.fire(erro.error, '', 'error');
+        }
+      })
+  
+    }
+save(){
     if(this.professor.id>0){
-      alert("EStou realizando um update");
+
+      this.professorService.update(this.professor, this.professor.id).subscribe({
+        next: mensagem =>{
+          Swal.fire(mensagem, '', 'success');
+           
+        },
+        error: erro =>{
+          Swal.fire(erro.error, '', 'error');
+        }
+
+      })
+      
     }else{
-      alert("Estou  salvando")
+      this.professorService.save(this.professor).subscribe({
+        next: mensagem =>{
+       
+        Swal.fire(mensagem, '', 'success');
+                       
+  
+        },
+        error: erro =>{  
+          Swal.fire(erro.error, '', 'error');
+        }
+
+      })
     }
   }
+  
 }
 

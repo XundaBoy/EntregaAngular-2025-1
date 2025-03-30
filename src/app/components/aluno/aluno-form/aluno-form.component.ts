@@ -3,7 +3,10 @@ import { Component, inject } from '@angular/core';
 import { MdbFormsModule } from 'mdb-angular-ui-kit/forms';
 import { Aluno } from '../../../models/aluno';
 import { FormsModule } from '@angular/forms';
+import Swal from 'sweetalert2';
 import { ActivatedRoute } from '@angular/router';
+import { AlunoService } from '../../../service/aluno.service';
+
 
 @Component({
   selector: 'app-aluno-form',
@@ -17,26 +20,69 @@ export class AlunoFormComponent {
   aluno: Aluno =  new Aluno();
 
   rotaAtivida = inject(ActivatedRoute);
+  alunoService = inject(AlunoService);
+
+
   constructor(){
 
     let id = this.rotaAtivida.snapshot.params["id"];
-    if(id){
-      let aluno1 = new Aluno();
-      aluno1.id = 10;
-      aluno1.nome="Afonso";
-      aluno1.cpf="321";
-      aluno1.telefone="9990";
-      aluno1.turma="D";
-      this.aluno = aluno1;
+    if(id > 0){
+     this.findById(id);
 
     }
+  }
+
+  findById(id : number){
+
+    this.alunoService.findById(id).subscribe({
+      next: retorno =>{      
+        this.aluno = retorno;
+      },
+      error: erro =>{
+        Swal.fire(erro.error, '', 'error');
+      }
+    })
+
   }
 
   save(){
     if(this.aluno.id>0){
-      alert("EStou realizando um update");
+
+      this.alunoService.update(this.aluno, this.aluno.id).subscribe({
+        next: mensagem =>{
+       
+        Swal.fire({
+          title: mensagem,
+          icon: "error",
+          confirmButtonText: "Ok",
+
+        });
+  
+        },
+        error: erro =>{
+          Swal.fire(erro.error, '', 'error');
+        }
+
+      })
+      
     }else{
-      alert("Estou  salvando")
+      this.alunoService.save(this.aluno).subscribe({
+        next: mensagem =>{
+       
+        Swal.fire({
+          title: mensagem,
+          icon: "error",
+          confirmButtonText: "Ok",
+
+        });
+  
+        },
+        error: erro =>{  
+          Swal.fire(erro.error, '', 'error');
+        }
+
+      })
     }
   }
+  
 }

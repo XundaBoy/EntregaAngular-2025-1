@@ -22,7 +22,7 @@
             <br />
 
             turma:<br>
-            <input  required  [(ngModel)]="aluno.turma"  type="text" class="form-control" name="turma">
+            <input   required [(ngModel)]="aluno.turma"  type="text" class="form-control" name="turma">
             <button (click)="save()"  [disabled]="!formulario.valid" class="btn btn-success">Salvar</button>
           </form>
 

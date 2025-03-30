@@ -1,5 +1,7 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import {Aluno} from '../../../models/aluno';
+import Swal from 'sweetalert2';
+import { AlunoService } from '../../../service/aluno.service';
 @Component({
   selector: 'app-aluno-list',
   standalone: true,
@@ -12,42 +14,37 @@ export class AlunoListComponent {
 
     lista : Aluno[] = [];
 
+    alunoService = inject(AlunoService);
+
     constructor(){
       this.findAll()
     }
 
     findAll(){
-
-      let aluno1 = new Aluno();
-      aluno1.id=1;
-      aluno1.nome="Arthur";
-      aluno1.cpf="123",
-      aluno1.telefone="000",
-      aluno1.turma="A";
-      
-
-      let aluno2 = new Aluno();
-      aluno2.id=2;
-      aluno2.nome="Lucas";
-      aluno2.cpf="456",
-      aluno2.telefone="000",
-      aluno2.turma="c";
-
-      let aluno3 = new Aluno();
-      aluno3.id=3;
-      aluno3.nome="Nath";
-      aluno3.cpf="789",
-      aluno3.telefone="000",
-      aluno3.turma="b";
-
-
-      this.lista.push(aluno1, aluno2, aluno3);
+     this.alunoService.findAll().subscribe({
+      next: (listaRetornada) =>{//DEU CERTO
+        this.lista = listaRetornada;   
+      },
+      error: (erro) =>{//DEU ERRADO
+        Swal.fire(erro.error, '', 'error');
+      }
+     });
     }
 
-    delete(aluno: Aluno){
-      let indice = this.lista.findIndex(x => {return x.id == aluno.id});
+    deleteById(aluno: Aluno){
+      
       if(confirm("Deseja deletar ?")){
-        this.lista.splice(indice, 1); 
+        
+        this.alunoService.deleteById(aluno.id).subscribe({
+          next: (mensagem) =>{//DEU CERTO
+            Swal.fire(mensagem, '', 'success');
+            this.findAll();
+          },
+          error: (erro) =>{//DEU ERRADO
+            Swal.fire(erro.error, '', 'error');
+          }
+         });
+
       }
     }
 

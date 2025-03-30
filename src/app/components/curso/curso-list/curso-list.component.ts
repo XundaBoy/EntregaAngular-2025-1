@@ -1,5 +1,8 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import {Curso} from '../../../models/curso';
+import { CursoService } from '../../../service/curso.service';
+import Swal from 'sweetalert2';
+
 @Component({
   selector: 'app-curso-list',
   standalone: true,
@@ -11,6 +14,8 @@ export class CursoListComponent {
 
 
     lista : Curso[] = [];
+    cursoService = inject(CursoService );
+
 
     constructor(){
       this.findAll()
@@ -18,27 +23,32 @@ export class CursoListComponent {
 
     findAll(){
 
-      let curso1 = new Curso();
-     curso1.id=1;
-     curso1.nome="Arquitetura";
-      
-
-     let curso2 = new Curso();
-     curso2.id=2;
-     curso2.nome="Engenharia";
-
-      
-
-
-      this.lista.push(curso1, curso2);
+       this.cursoService.findAll().subscribe({
+            next: (listaRetornada) =>{//DEU CERTO
+              this.lista = listaRetornada;   
+            },
+            error: (erro) =>{//DEU ERRADO
+              Swal.fire(erro.error, '', 'error');
+            }
+           });
     }
 
-    delete(curso: Curso){
-      let indice = this.lista.findIndex(x => {return x.id == curso.id});
-      if(confirm("Deseja deletar ?")){
-        this.lista.splice(indice, 1); 
-      }
-    }
+     deleteById(curso: Curso){
+          
+          if(confirm("Deseja deletar ?")){
+            
+            this.cursoService.deleteById(curso.id).subscribe({
+              next: (mensagem) =>{//DEU CERTO
+                Swal.fire(mensagem, '', 'success');
+                this.findAll();
+              },
+              error: (erro) =>{//DEU ERRADO
+                Swal.fire(erro.error, '', 'error');
+              }
+             });
+    
+          }
+        }
 
 
 }
